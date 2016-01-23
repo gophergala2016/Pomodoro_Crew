@@ -1,6 +1,6 @@
 package routes
 
-import (
+/*import (
 	"fmt"
 	"log"
 	"net/http"
@@ -49,4 +49,4 @@ func LogoutHandler(rnd render.Render, r *http.Request, s *session.Session) {
 	s.IsAuthorized = false
 
 	rnd.Redirect("/")
-}
+}*/
