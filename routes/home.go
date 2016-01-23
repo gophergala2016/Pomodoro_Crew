@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gophergala2016/Pomodoro_Crew/session"
-	"github.com/gavruk/go-blog-example/models"
-	"github.com/gavruk/go-blog-example/session"*/
 
 	"github.com/martini-contrib/render"
 )

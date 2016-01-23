@@ -2,36 +2,32 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 	"html/template"
+	"log"
+	//"net/http"
+
+	"github.com/go-martini/martini"
+	"github.com/googollee/go-socket.io"
+	"github.com/martini-contrib/render"
 
 	"github.com/gophergala2016/Pomodoro_Crew/routes"
 	"github.com/gophergala2016/Pomodoro_Crew/session"
-	"github.com/googollee/go-socket.io"
 
 	"github.com/google/cayley"
 	_ "github.com/google/cayley/graph/bolt"
 
 	"github.com/google/cayley/graph"
-	"time"
 	"strconv"
+	"time"
 )
 
-func main() {
-	fmt.Println("Listening on port :3000")
-
-	mongoSession, err := mgo.Dial("localhost")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	t.Execute(w, Home{users})
+func unescape(x string) interface{} {
+	return template.HTML(x)
 }
 
-func serve() {
+func main() {
 
 	path := "/tmp/pc"
-	m := martini.Classic()
 
 	graph.InitQuadStore("bolt", path, nil)
 
@@ -44,19 +40,25 @@ func serve() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	
-	m.Use(session.Middleware)
 
 	initTimer(store)
-	
+
+	fmt.Println("Listening on port :3000")
+
+	m := martini.Classic()
+
+	unescapeFuncMap := template.FuncMap{"unescape": unescape}
+
+	m.Use(session.Middleware)
+
 	m.Use(render.Renderer(render.Options{
-    		Directory:  "templates",                         // Specify what path to load the templates from.
-    		Layout:     "layout",                            // Specify a layout template. Layouts can call {{ yield }} to render the current template.
-    		Extensions: []string{".tmpl", ".html"},          // Specify extensions to load for templates.
-    		Funcs:      []template.FuncMap{unescapeFuncMap}, // Specify helper function maps for templates to access.
-    		Charset:    "UTF-8",                             // Sets encoding for json and html content-types. Default is "UTF-8".
-    		IndentJSON: true,                                // Output human readable JSON
-    	}))
+		Directory:  "templates",                         // Specify what path to load the templates from.
+		Layout:     "layout",                            // Specify a layout template. Layouts can call {{ yield }} to render the current template.
+		Extensions: []string{".tmpl", ".html"},          // Specify extensions to load for templates.
+		Funcs:      []template.FuncMap{unescapeFuncMap}, // Specify helper function maps for templates to access.
+		Charset:    "UTF-8",                             // Sets encoding for json and html content-types. Default is "UTF-8".
+		IndentJSON: true,                                // Output human readable JSON
+	}))
 
 	staticOptions := martini.StaticOptions{Prefix: "assets"}
 	m.Use(martini.Static("assets", staticOptions))
@@ -66,11 +68,7 @@ func serve() {
 	m.Post("/login", routes.PostLoginHandler)
 	m.Get("/view:id", routes.ViewHandler)
 	m.Post("/gethtml", routes.GetHtmlHandler)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		home(w, r, store)
-	})
-	http.Handle("/socket.io/", server)
-	http.ListenAndServe(":3000", nil)
+	m.Get("/socket.io/", server)
 }
 
 func initSocket(store *cayley.Handle) (*socketio.Server, error) {
@@ -158,7 +156,7 @@ func followers() {
 }
 
 func makeBusy(name string, store *cayley.Handle) {
-	freeAt := strconv.FormatInt(time.Now().Unix() + 10, 10)
+	freeAt := strconv.FormatInt(time.Now().Unix()+10, 10)
 	quad := cayley.Quad(name, "free at", freeAt, "")
 	log.Println(quad)
 	store.AddQuad(quad)
