@@ -26,7 +26,7 @@ func PostLoginHandler(w http.ResponseWriter, rnd render.Render, r *http.Request,
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims["Name"] = "token"
 	token.Claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
-	tokenString, err := token.SignedString([]byte(username + session.TOKEN_STR))
+	tokenString, err := token.SignedString([]byte(session.TOKEN_STR))
 	fmt.Println(tokenString)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

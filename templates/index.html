@@ -1,29 +1,17 @@
-<!doctype html>
-<html>
-<head>
-    <title>Pomodoro Crew</title>
-</head>
-<body>
 <ul id="user">
     {{range .Users}}
         <li>{{.Name}} {{.IsBusy}}</li>
     {{end}}
 </ul>
-<form action="">
-    <input id="name" autocomplete="off" /><button id="start-stop">Start</button>
-</form>
+<button id="start-stop">Start</button>
 
 <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
-<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script>
     var socket = io();
-    $('form').submit(function(){
-        name = $('#name').val();
-        if (name.length > 0) {
-            text = $('#start-stop').text()
-            socket.emit(text.toLowerCase(), name);
-            $('#start-stop').text(text == 'Stop' ? 'Start' : 'Stop');
-        }
+    $('#start-stop').click(function(){
+        text = $('#start-stop').text()
+        socket.emit(text.toLowerCase());
+        $('#start-stop').text(text == 'Stop' ? 'Start' : 'Stop');
         return false;
     });
     socket.on('start', function(name){
@@ -33,5 +21,3 @@
         $('#messages').append($('<li>').text(name + ' stoped'));
     });
 </script>
-</body>
-</html>

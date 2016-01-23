@@ -62,7 +62,7 @@ func ensureCookie(r *http.Request, w http.ResponseWriter) string {
 		fmt.Fprintln(w, "Dont have valid token!")
 	}
 	token, err := jwt.Parse(tokenCookie.Value, func(token *jwt.Token) (interface{}, error) {
-		return nil, fmt.Errorf("Unexpected signing method")
+		return []byte(TOKEN_STR), nil
 	})
 
 	switch err.(type) {
@@ -72,13 +72,11 @@ func ensureCookie(r *http.Request, w http.ResponseWriter) string {
 		if !token.Valid {
 			w.WriteHeader(http.StatusUnauthorized)
 			return "Invalid Token!"
-
 		}
 
 		log.Printf("Someone accessed resricted area! Token:%+v\n", token)
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
-		//rnd.Redirect("/")
 
 	case *jwt.ValidationError:
 		vErr := err.(*jwt.ValidationError)
@@ -89,7 +87,7 @@ func ensureCookie(r *http.Request, w http.ResponseWriter) string {
 			return "Token Expired, get a new one."
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			log.Printf("ValidationError error: %+v\n", vErr.Errors)
+			log.Printf("ValidationError error: %+v\n", vErr.Error())
 			return "Error while Parsing Token!"
 		}
 
@@ -99,7 +97,7 @@ func ensureCookie(r *http.Request, w http.ResponseWriter) string {
 		return "Error while Parsing Token!"
 	}
 
-	tokenString, err := token.SignedString(TOKEN_STR)
+	tokenString, err := token.SignedString([]byte(TOKEN_STR))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("Token Signing error: %v\n", err)
@@ -124,7 +122,7 @@ func Middleware(ctx martini.Context, r *http.Request, w http.ResponseWriter) {
 
 		sessionStore.Set(session)
 	}
-	token := jwt.New(jwt.SigningMethodHS256)
+	token := jwt.New(jwt.GetSigningMethod("HS256"))
 	token.Claims["Name"] = "token"
 	token.Claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
 	tokenString, err := token.SignedString([]byte(TOKEN_STR))

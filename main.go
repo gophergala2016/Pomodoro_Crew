@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"net/http"
+	//"net/http"
 
 	"github.com/go-martini/martini"
 	"github.com/googollee/go-socket.io"
@@ -19,6 +19,7 @@ import (
 	"github.com/google/cayley/graph"
 	"strconv"
 	"time"
+"net/http"
 )
 
 func unescape(x string) interface{} {
@@ -32,11 +33,6 @@ func main() {
 	graph.InitQuadStore("bolt", path, nil)
 
 	store, err := cayley.NewGraph("bolt", path, nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	server, err := initSocket(store)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,6 +54,11 @@ func main() {
 		IndentJSON: true,                                // Output human readable JSON
 	}))
 
+	server, err := initSocket(store)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	staticOptions := martini.StaticOptions{Prefix: "assets"}
 	m.Use(martini.Static("assets", staticOptions))
 	m.Get("/", routes.IndexHandler)
@@ -66,10 +67,10 @@ func main() {
 	m.Post("/login", routes.PostLoginHandler)
 	m.Get("/view:id", routes.ViewHandler)
 	m.Post("/gethtml", routes.GetHtmlHandler)
-	http.Handle("/socket.io/", server)
-	http.Handle("/", m)
-	fmt.Println("Listening on port :3000")
-	http.ListenAndServe(":3000", nil)
+	m.Get("/socket.io/", func (w http.ResponseWriter, rnd render.Render, r *http.Request, s *session.Session) {
+		server.ServeHTTP(w, r)
+	})
+	m.Run()
 }
 
 func initSocket(store *cayley.Handle) (*socketio.Server, error) {
@@ -77,19 +78,23 @@ func initSocket(store *cayley.Handle) (*socketio.Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	sessionStore := session.NewSessionStore()
+	s := sessionStore.Get(session.TOKEN_NAME)
+
+	fmt.Println(s.Username)
 
 	server.On("connection", func(so socketio.Socket) {
 		log.Println("on connection")
 		so.Join("chat")
-		so.On("start", func(name string) {
-			log.Println("emit:", so.Emit("start", name))
-			so.BroadcastTo("chat", "start", name)
-			addUser(name, store)
-			makeBusy(name, store)
+		so.On("start", func() {
+			log.Println("emit:", so.Emit("start"))
+			so.BroadcastTo("chat", "start")
+			//addUser(name, store)
+			//makeBusy(name, store)
 		})
-		so.On("stop", func(name string) {
-			log.Println("emit:", so.Emit("stop", name))
-			so.BroadcastTo("chat", "stop", name)
+		so.On("stop", func() {
+			log.Println("emit:", so.Emit("stop"))
+			so.BroadcastTo("chat", "stop")
 		})
 		so.On("disconnection", func() {
 			log.Println("on disconnect")
