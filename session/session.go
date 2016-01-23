@@ -67,16 +67,13 @@ func ensureCookie(r *http.Request, w http.ResponseWriter) string {
 
 	switch err.(type) {
 
+	// TODO check whether it's needed
 	case nil:
 
 		if !token.Valid {
 			w.WriteHeader(http.StatusUnauthorized)
 			return "Invalid Token!"
 		}
-
-		log.Printf("Someone accessed resricted area! Token:%+v\n", token)
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusOK)
 
 	case *jwt.ValidationError:
 		vErr := err.(*jwt.ValidationError)
