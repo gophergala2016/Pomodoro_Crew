@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	//"net/http"
+	"net/http"
 
 	"github.com/go-martini/martini"
 	"github.com/googollee/go-socket.io"
@@ -68,7 +68,9 @@ func main() {
 	m.Post("/login", routes.PostLoginHandler)
 	m.Get("/view:id", routes.ViewHandler)
 	m.Post("/gethtml", routes.GetHtmlHandler)
-	m.Get("/socket.io/", server)
+	m.Get("/socket.io/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.ServeHTTP(w, r)
+	}))
 }
 
 func initSocket(store *cayley.Handle) (*socketio.Server, error) {
