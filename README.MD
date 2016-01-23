@@ -1,2 +1,2 @@
-go-blog-example
+Pomodoro Crew project
 ===============

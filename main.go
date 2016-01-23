@@ -2,57 +2,30 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"html/template"
 
+	"github.com/go-martini/martini"
 	"github.com/googollee/go-socket.io"
+	"github.com/martini-contrib/render"
+
+	"github.com/gophergala2016/Pomodoro_Crew/routes"
+	"github.com/gophergala2016/Pomodoro_Crew/session"
 
 	"github.com/google/cayley"
 	_ "github.com/google/cayley/graph/bolt"
 
 	"github.com/google/cayley/graph"
-	"time"
 	"strconv"
+	"time"
 )
 
+func unescape(x string) interface{} {
+	return template.HTML(x)
+}
+
 func main() {
-	fmt.Println("Listening on port :3000")
-
-	serve()
-}
-
-type Home struct {
-	Users []User
-}
-
-type User struct {
-	Name string
-	FreeAt int64
-}
-
-func (u *User) IsBusy() bool {
-	return u.FreeAt > time.Now().Unix()
-}
-
-func home(w http.ResponseWriter, r *http.Request, store *cayley.Handle) {
-	p := cayley.StartPath(store, "user").In()
-	it := p.BuildIterator()
-	users := []User{}
-	for cayley.RawNext(it) {
-		userName := store.NameOf(it.Result())
-		users = append(users, User{userName, time.Now().Unix()})
-		log.Println("User:", store.NameOf(it.Result()))
-	}
-
-	t, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	t.Execute(w, Home{users})
-}
-
-func serve() {
 
 	path := "/tmp/pc"
 
@@ -70,11 +43,34 @@ func serve() {
 
 	initTimer(store)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		home(w, r, store)
-	})
-	http.Handle("/socket.io/", server)
-	http.ListenAndServe(":3000", nil)
+	fmt.Println("Listening on port :3000")
+
+	m := martini.Classic()
+
+	unescapeFuncMap := template.FuncMap{"unescape": unescape}
+
+	m.Use(session.Middleware)
+
+	m.Use(render.Renderer(render.Options{
+		Directory:  "templates",                         // Specify what path to load the templates from.
+		Layout:     "layout",                            // Specify a layout template. Layouts can call {{ yield }} to render the current template.
+		Extensions: []string{".tmpl", ".html"},          // Specify extensions to load for templates.
+		Funcs:      []template.FuncMap{unescapeFuncMap}, // Specify helper function maps for templates to access.
+		Charset:    "UTF-8",                             // Sets encoding for json and html content-types. Default is "UTF-8".
+		IndentJSON: true,                                // Output human readable JSON
+	}))
+
+	staticOptions := martini.StaticOptions{Prefix: "assets"}
+	m.Use(martini.Static("assets", staticOptions))
+	m.Get("/", routes.IndexHandler)
+	m.Get("/login", routes.GetLoginHandler)
+	m.Get("/logout", routes.LogoutHandler)
+	m.Post("/login", routes.PostLoginHandler)
+	m.Get("/view:id", routes.ViewHandler)
+	m.Post("/gethtml", routes.GetHtmlHandler)
+	m.Get("/socket.io/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.ServeHTTP(w, r)
+	}))
 }
 
 func initSocket(store *cayley.Handle) (*socketio.Server, error) {
@@ -162,7 +158,7 @@ func followers() {
 }
 
 func makeBusy(name string, store *cayley.Handle) {
-	freeAt := strconv.FormatInt(time.Now().Unix() + 10, 10)
+	freeAt := strconv.FormatInt(time.Now().Unix()+10, 10)
 	quad := cayley.Quad(name, "free at", freeAt, "")
 	log.Println(quad)
 	store.AddQuad(quad)
