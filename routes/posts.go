@@ -1,6 +1,6 @@
 package routes
 
-import (
+/*import (
 	"net/http"
 
 	"github.com/gavruk/go-blog-example/db/documents"
@@ -106,7 +106,8 @@ func DeleteHandler(s *session.Session, rnd render.Render, r *http.Request, param
 
 func GetHtmlHandler(rnd render.Render, r *http.Request) {
 	md := r.FormValue("md")
+
 	html := utils.ConvertMarkdownToHtml(md)
 
 	rnd.JSON(200, map[string]interface{}{"html": html})
-}
+}*/
