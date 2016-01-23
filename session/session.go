@@ -108,19 +108,19 @@ func ensureCookie(r *http.Request, w http.ResponseWriter) string {
 
 }
 
-var sessionStore = NewSessionStore()
+var SessionStorage = NewSessionStore()
 
 func Middleware(ctx martini.Context, r *http.Request, w http.ResponseWriter) {
 	assets := regexp.MustCompile(`.*assets.*`)
 	if r.URL.Path != "/login" && !assets.MatchString(r.URL.Path) && r.URL.Path != "/" {
 		sessionId := ensureCookie(r, w)
-		session := sessionStore.Get(sessionId)
+		session := SessionStorage.Get(sessionId)
 
 		ctx.Map(session)
 
 		ctx.Next()
 
-		sessionStore.Set(session)
+		SessionStorage.Set(session)
 	}
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
 	token.Claims["Name"] = "token"
@@ -132,11 +132,11 @@ func Middleware(ctx martini.Context, r *http.Request, w http.ResponseWriter) {
 		fmt.Fprintln(w, "Sorry, error while Signing Token!")
 	}
 
-	session := sessionStore.Get(tokenString)
+	session := SessionStorage.Get(tokenString)
 
 	ctx.Map(session)
 
 	ctx.Next()
 
-	sessionStore.Set(session)
+	SessionStorage.Set(session)
 }

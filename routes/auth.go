@@ -20,6 +20,9 @@ func PostLoginHandler(w http.ResponseWriter, rnd render.Render, r *http.Request,
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
+	s.Username = username
+	s.IsAuthorized = true
+
 	fmt.Println(username)
 	fmt.Println(password)
 
@@ -38,9 +41,7 @@ func PostLoginHandler(w http.ResponseWriter, rnd render.Render, r *http.Request,
 		Name:  session.TOKEN_NAME,
 		Value: tokenString,
 	})
-	s.Username = username
 	s.Id = tokenString
-	s.IsAuthorized = true
 	rnd.Redirect("/")
 }
 
