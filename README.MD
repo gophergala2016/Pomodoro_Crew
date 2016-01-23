@@ -1,1 +1,2 @@
-Application for pomodoro technique
+go-blog-example
+===============

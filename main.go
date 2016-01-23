@@ -3,70 +3,60 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"net/http"
-	"time"
 
-	"github.com/codegangsta/martini"
+	"github.com/gavruk/go-blog-example/routes"
+	"github.com/gavruk/go-blog-example/session"
+
+	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
+
+	"labix.org/v2/mgo"
 )
-
-func main() {
-	fmt.Println("Listening on port :3000")
-
-	m.Use(render.Renderer(render.Options{
-		Directory:  "templates",
-		Layout:     "layout",
-		Extensions: []string{".tmpl", ".html"},
-		Charset:    "UTF-8",
-		Funcs:      []template.FuncMap{unescapeFuncMap},
-		IndentJSON: true,
-	}))
-
-	m.Run()
-	staticOptions := martini.StaticOptions{Prefix: "assets"}
-	m.Use(martini.Static("assets", staticOptions))
-
-	m.Get("/", indexHandler)
-	m.Get("/login", routes.getLoginHandler)
-	m.Post("/", routes.postLoginHandler)
-
-	m.Post("/gethtml", getHtmlHandler)
-
-}
-
-func indexHandler(rnd render.Render, w http.ResponseWriter, r *http.Request) {
-
-	rnd.HTML(200, "index", posts)
-}
 
 func unescape(x string) interface{} {
 	return template.HTML(x)
 }
 
-func getHtmlHandler(rnd render.Render, r *http.Request) {
-	md := r.FormValue("md")
-	html := utils.ConvertMarkdownToHtml(md)
+func main() {
+	fmt.Println("Listening on port :3000")
 
-	rnd.JSON(200, map[string]interface{}{"html": string(html)})
-}
-
-func getLoginHandler(rnd render.Render) {
-	rnd.HTML(200, "login", nil)
-}
-
-func postLoginHandler(rnd render.Render, w http.ResponceWriter, r *http.Request) {
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	sessionId := inMemorySession.Init(username)
-
-	cookie := &http.cookie{
-		Name:    COOKIE_NAME,
-		Value:   session_id,
-		Expires: time, Now().Add(5 * time.Minutes),
+	mongoSession, err := mgo.Dial("localhost")
+	if err != nil {
+		panic(err)
 	}
 
-	http.SetCookie(w, cookie)
+	db := mongoSession.DB("blog")
 
-	rnd.Redirect("/")
+	m := martini.Classic()
+
+	unescapeFuncMap := template.FuncMap{"unescape": unescape}
+
+	m.Map(db)
+
+	m.Use(session.Middleware)
+
+	m.Use(render.Renderer(render.Options{
+		Directory:  "templates",                         // Specify what path to load the templates from.
+		Layout:     "layout",                            // Specify a layout template. Layouts can call {{ yield }} to render the current template.
+		Extensions: []string{".tmpl", ".html"},          // Specify extensions to load for templates.
+		Funcs:      []template.FuncMap{unescapeFuncMap}, // Specify helper function maps for templates to access.
+		Charset:    "UTF-8",                             // Sets encoding for json and html content-types. Default is "UTF-8".
+		IndentJSON: true,                                // Output human readable JSON
+	}))
+
+	staticOptions := martini.StaticOptions{Prefix: "assets"}
+	m.Use(martini.Static("assets", staticOptions))
+
+	m.Get("/", routes.IndexHandler)
+	m.Get("/login", routes.GetLoginHandler)
+	m.Get("/logout", routes.LogoutHandler)
+	m.Post("/login", routes.PostLoginHandler)
+	m.Get("/write", routes.WriteHandler)
+	m.Get("/edit/:id", routes.EditHandler)
+	m.Get("/view/:id", routes.ViewHandler)
+	m.Get("/delete/:id", routes.DeleteHandler)
+	m.Post("/SavePost", routes.SavePostHandler)
+	m.Post("/gethtml", routes.GetHtmlHandler)
+
+	m.Run()
 }
