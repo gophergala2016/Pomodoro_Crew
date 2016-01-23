@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	//"net/http"
+	"net/http"
 
 	"github.com/go-martini/martini"
 	"github.com/googollee/go-socket.io"
@@ -43,8 +43,6 @@ func main() {
 
 	initTimer(store)
 
-	fmt.Println("Listening on port :3000")
-
 	m := martini.Classic()
 
 	unescapeFuncMap := template.FuncMap{"unescape": unescape}
@@ -68,7 +66,10 @@ func main() {
 	m.Post("/login", routes.PostLoginHandler)
 	m.Get("/view:id", routes.ViewHandler)
 	m.Post("/gethtml", routes.GetHtmlHandler)
-	m.Get("/socket.io/", server)
+	http.Handle("/socket.io/", server)
+	http.Handle("/", m)
+	fmt.Println("Listening on port :3000")
+	http.ListenAndServe(":3000", nil)
 }
 
 func initSocket(store *cayley.Handle) (*socketio.Server, error) {
