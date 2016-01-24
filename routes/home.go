@@ -13,6 +13,7 @@ type Home struct {
 	Current     *models.User
 	Users       []*models.User
 	SecondsLeft int64
+	IsAuthorized  bool
 }
 
 func IndexHandler(rnd render.Render, s *session.Session) {
@@ -25,6 +26,7 @@ func IndexHandler(rnd render.Render, s *session.Session) {
 	data := Home{
 		Current: user,
 		Users:storage.GetUsers(user),
+		IsAuthorized:s.IsAuthorized,
 	}
 
 	if user.Iteration() {

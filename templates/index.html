@@ -1,3 +1,4 @@
+{{if .IsAuthorized}}
 <ul id="user">
     {{range .Users}}
     <li id="user-{{.Name}}" style="color:{{if .Iteration}}red{{else}}green{{end}};">{{.Name}} {{.Iteration}}</li>
@@ -79,3 +80,8 @@
         $clock.countdown(end.toString());
     }
 </script>
+{{else}}
+<div>
+    <iframe width="840" height="472" src="https://www.youtube.com/embed/CT70iCaG0Gs" frameborder="0" allowfullscreen></iframe>
+</div>
+{{end}}
