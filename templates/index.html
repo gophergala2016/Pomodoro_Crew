@@ -1,87 +1,91 @@
-{{if .IsAuthorized}}
-<ul id="user">
-    {{range .Users}}
-    <li id="user-{{.Name}}" style="color:{{if .Iteration}}red{{else}}green{{end}};">{{.Name}} {{.Iteration}}</li>
+{{if .IsAuthorized}}}
+    <script src="/assets/js/jquery.countdown.min.js"></script>
+    <div class="timer">
+        <div class="timer__wrap">
+            <div class="timer__time">
+                <div class="timer__title">Current stage timer</div>
+                <div class="timer__value" id="clock">00:30:00</div>
+            </div>
+            <div class="timer__stage">
+                <div class="timer__title">Stage</div>
+                <div class="timer__value">10</div>
+            </div>
+        </div>
+        <button class="timer__button" type="button" id="start-stop" {{if and (not .Current.Iteration) (not .Current.CanStart)}} disabled{{end}}>{{if .Current.Iteration}}Stop{{else}}Start{{end}}</button>
+    </div>
+    {{if gt .SecondsLeft 0}}
+    <script type="text/javascript">
+        var $clock = $('#clock')
+                .on('update.countdown', function (event) {
+                    var format = '%H:%M:%S';
+                    $(this).html(event.strftime(format));
+                })
+                .on('finish.countdown', function (event) {
+                });
+        end = new Date().valueOf() + {{.SecondsLeft}} * 1000;
+        $clock.countdown(end.toString());
+    </script>
     {{end}}
-</ul>
-<div id="clock">00:30:00</div>
-<script src="/assets/js/jquery.countdown.min.js"></script>
-{{if gt .SecondsLeft 0}}
-<script type="text/javascript">
-    var $clock = $('#clock')
-            .on('update.countdown', function (event) {
-                var format = '%H:%M:%S';
-                $(this).html(event.strftime(format));
-            })
-            .on('finish.countdown', function (event) {
-            });
-    end = new Date().valueOf() + {{.SecondsLeft}} * 1000;
-    $clock.countdown(end.toString());
-</script>
-{{end}}
-<button id="start-stop" {{if and (not .Current.Iteration) (not .Current.CanStart)}} disabled{{end}}>{{if .Current.Iteration}}Stop{{else}}Start{{end}}</button>
-<script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
-<script>
-    var socket = io();
-    var userName = '{{.Current.Name}}';
-    $('#start-stop').click(function () {
-        text = $('#start-stop').text()
-        socket.emit(text.toLowerCase());
-        if (text == 'Stop') {
-            stopTimer();
-        } else {
-            startTimer();
-        }
-    });
-    socket.on('start', function (name) {
-        if (name == userName) {
-            startTimer()
-        } else {
-            $('#user-' + name).css('color', 'red');
-        }
-    });
-    socket.on('stop', function (name) {
-        if (name == userName) {
-            stopTimer()
-        } else {
-            $('#user-' + name).css('color', 'green');
-        }
-    });
-    socket.on('enable', function (name) {
-        if (name == userName) {
-            $('#start-stop').prop('disabled', false);
-            $('#clock').countdown('stop').html('00:30:00')
-        }
-    });
-
-    function startTimer() {
-        $('#start-stop').text('Stop');
-        var $clock = $('#clock')
-        .on('update.countdown', function (event) {
-            var format = '%H:%M:%S';
-            $(this).html(event.strftime(format));
-        })
-        .on('finish.countdown', function (event) {
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+    <script>
+        var socket = io();
+        var userName = '{{.Current.Name}}';
+        $('#start-stop').click(function () {
+            text = $('#start-stop').text()
+            socket.emit(text.toLowerCase());
+            if (text == 'Stop') {
+                stopTimer();
+            } else {
+                startTimer();
+            }
         });
-        end = new Date().valueOf() + 30 * 60 * 1000;
-        $clock.countdown(end.toString());
-    }
-
-    function stopTimer() {
-        $('#start-stop').text('Start').prop('disabled', true);
-        var $clock = $('#clock')
-        .on('update.countdown', function (event) {
-            var format = '%H:%M:%S';
-            $(this).html(event.strftime(format));
-        })
-        .on('finish.countdown', function (event) {
+        socket.on('start', function (name) {
+            if (name == userName) {
+                startTimer()
+            } else {
+                $('#user-' + name).css('color', 'red');
+            }
         });
-        end = new Date().valueOf() + 5 * 60 * 1000;
-        $clock.countdown(end.toString());
-    }
-</script>
+        socket.on('stop', function (name) {
+            if (name == userName) {
+                stopTimer()
+            } else {
+                $('#user-' + name).css('color', 'green');
+            }
+        });
+        socket.on('enable', function (name) {
+            if (name == userName) {
+                $('#start-stop').prop('disabled', false);
+                $('#clock').countdown('stop').html('00:30:00')
+            }
+        });
+
+        function startTimer() {
+            $('#start-stop').text('Stop');
+            var $clock = $('#clock')
+                    .on('update.countdown', function (event) {
+                        var format = '%H:%M:%S';
+                        $(this).html(event.strftime(format));
+                    })
+                    .on('finish.countdown', function (event) {
+                    });
+            end = new Date().valueOf() + 30 * 60 * 1000;
+            $clock.countdown(end.toString());
+        }
+
+        function stopTimer() {
+            $('#start-stop').text('Start').prop('disabled', true);
+            var $clock = $('#clock')
+                    .on('update.countdown', function (event) {
+                        var format = '%H:%M:%S';
+                        $(this).html(event.strftime(format));
+                    })
+                    .on('finish.countdown', function (event) {
+                    });
+            end = new Date().valueOf() + 5 * 60 * 1000;
+            $clock.countdown(end.toString());
+        }
+    </script>
 {{else}}
-<div>
-    <iframe width=100% height="400" src="https://www.youtube.com/embed/CT70iCaG0Gs" frameborder="0" allowfullscreen></iframe>
-</div>
+    <div class="video col-xs-10" style="width:100%"><iframe width=100% height="400" src="https://www.youtube.com/embed/CT70iCaG0Gs" frameborder="0" allowfullscreen></iframe></div>
 {{end}}

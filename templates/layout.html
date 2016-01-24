@@ -63,26 +63,7 @@
 	</div>
     <div class="col-xs-3 column column--aside"></div>
     <div class="col-xs-7 column">
-	    {{if .IsAuthorized}}}  
-        <div class="timer">
 		{{yield}}
-            <div class="timer__wrap">
-                <div class="timer__time">
-                    <div class="timer__title">Current stage timer</div>
-                    <div class="timer__value">00:00:00</div>
-                </div>
-                <div class="timer__stage">
-                    <div class="timer__title">Stage</div>
-                    <div class="timer__value">10</div>
-                </div>
-            </div>
-            <button class="timer__button" type="button">Start / stop</button>
-        </div>
-	{{else}}
-	<div class="video col-xs-10" style="width:100%">
-		{{yield}}
-	</div>
-	{{end}}
     </div>
     <div class="col-xs-2 column column--aside"></div>
 </div>
