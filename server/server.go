@@ -73,7 +73,7 @@ func NewServer(storage *models.Storage) (*SocketServer, error) {
 				return
 			}
 			user := models.NewUser(server.session.Username)
-			user.Start(models.Iterate30Minutes)
+			user.Stop()
 			so.BroadcastTo(RoomName, "stop", user.Name)
 		})
 		so.On("disconnection", func() {
