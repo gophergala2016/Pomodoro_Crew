@@ -16,12 +16,13 @@ func (s *Storage) SaveUser(u *User) {
 
 	p := cayley.StartPath(u.getStorage(), u.Name).Out("free at")
 
+	iterationTime := u.IterationTime()
 	it := p.BuildIterator()
 	for cayley.RawNext(it) {
 		s.RemoveQuad(cayley.Quad(u.Name, "free at", s.NameOf(it.Result()), ""))
 	}
 
-	s.AddQuad(cayley.Quad(u.Name, "free at", strconv.FormatInt(u.IterationTime, 10), ""))
+	s.AddQuad(cayley.Quad(u.Name, "free at", strconv.FormatInt(iterationTime, 10), ""))
 }
 
 func (s *Storage) GetUsersFreeAt(t *int64) {
