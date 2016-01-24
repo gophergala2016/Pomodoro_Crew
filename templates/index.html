@@ -1,23 +1,17 @@
-<ul id="user">
-    {{range .Users}}
-        <li>{{.Name}} {{.IsBusy}}</li>
-    {{end}}
-</ul>
-<button id="start-stop">Start</button>
-
+<button id="start-stop">{{if .User.Iteration}}Stop{{else}}Start{{end}}</button>
 <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 <script>
     var socket = io();
-    $('#start-stop').click(function(){
+    $('#start-stop').click(function () {
         text = $('#start-stop').text()
         socket.emit(text.toLowerCase());
         $('#start-stop').text(text == 'Stop' ? 'Start' : 'Stop');
         return false;
     });
-    socket.on('start', function(name){
+    socket.on('start', function (name) {
         $('#messages').append($('<li>').text(name + ' started'));
     });
-    socket.on('stop', function(name){
+    socket.on('stop', function (name) {
         $('#messages').append($('<li>').text(name + ' stoped'));
     });
 </script>
