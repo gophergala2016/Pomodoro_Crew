@@ -13,6 +13,7 @@ import (
 
 	"github.com/google/cayley/graph"
 	"net/http"
+	"github.com/gophergala2016/Pomodoro_Crew/models"
 )
 
 func unescape(x string) interface{} {
@@ -40,10 +41,18 @@ func main() {
 		IndentJSON: true, // Output human readable JSON
 	}))
 
-	server, err := server.NewServer()
+	storage, err := models.GetStorage()
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	server, err := server.NewServer(storage)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	user := models.NewUser("admin")
+	user.Iteration()
 
 	staticOptions := martini.StaticOptions{Prefix: "assets"}
 	m.Use(martini.Static("assets", staticOptions))

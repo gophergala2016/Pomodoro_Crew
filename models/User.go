@@ -20,7 +20,8 @@ type User struct {
 }
 
 func NewUser(name string) *User {
-	return &User{name, 0, nil}
+	user := &User{name, 0, nil}
+	return user
 }
 
 func (u *User) Id() string {
