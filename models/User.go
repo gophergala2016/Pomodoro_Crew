@@ -6,8 +6,16 @@ import (
 	"strconv"
 )
 
+const (
+	Iterate15Minutes = 15 * 60
+	Iterate30Minutes = 30 * 60
+	Iterate45Minutes = 45 * 60
+
+)
+
 type User struct {
 	Name	string
+	iterationTime int64
 	storage *Storage
 }
 
@@ -32,6 +40,16 @@ func (u *User) IterationTime() int64 {
 	} else {
 		return time.Now().Unix()
 	}
+}
+
+func (u *User) Start(duration int64) {
+	u.iterationTime = time.Now().Unix()+duration
+	u.getStorage().SaveUser(u)
+}
+
+func (u *User) Stop() {
+	u.iterationTime = time.Now().Unix()
+	u.getStorage().SaveUser(u)
 }
 
 func (u *User) getStorage() *Storage {

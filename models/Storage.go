@@ -2,7 +2,6 @@ package models
 import (
 	"github.com/google/cayley/graph"
 	"github.com/google/cayley"
-	"log"
 	"strconv"
 )
 
@@ -13,12 +12,16 @@ type Storage struct {
 }
 
 func (s *Storage) SaveUser(u *User) {
-	storage, err := GetStorage()
-	if err != nil {
-		log.Fatalln(err)
+	s.AddQuad(cayley.Quad(u.Name, "is", "user", ""))
+
+	p := cayley.StartPath(u.getStorage(), u.Name).Out("free at")
+
+	it := p.BuildIterator()
+	for cayley.RawNext(it) {
+		s.RemoveQuad(cayley.Quad(u.Name, "free at", s.NameOf(it.Result()), ""))
 	}
-	storage.AddQuad(cayley.Quad(u.Name, "is", "user", ""))
-	storage.AddQuad(cayley.Quad(u.Name, "free at", strconv.FormatInt(u.IterationTime, 10), ""))
+
+	s.AddQuad(cayley.Quad(u.Name, "free at", strconv.FormatInt(u.IterationTime, 10), ""))
 }
 
 func (s *Storage) GetUsersFreeAt(t *int64) {
