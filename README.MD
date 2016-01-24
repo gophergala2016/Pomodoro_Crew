@@ -1,33 +1,39 @@
-Pomodoro Crew project
+Pomodoro Crew
 ===============
 
-Our project concentrate on team communication and team pruductivity problem.
-Pomodoro Crew its efficient Time Management tool.
-Presentation about Pomodoro Crew https://docs.google.com/presentation/d/1qNrgNp0SvOotwlRot-Yjs2EZp0lyZDd_FmhU-s-WV1c/edit?usp=sharing
+Pomodoro Crew is an efficient Time Management tool intending to solve or minimize team communication and productivity problems.
+
+[Presentation about Pomodoro Crew] (https://docs.google.com/presentation/d/1qNrgNp0SvOotwlRot-Yjs2EZp0lyZDd_FmhU-s-WV1c/edit?usp=sharing)
 
 
-Used tools
-As db we choose Cayley https://github.com/google/cayley and Bol https://github.com/boltdb/boltt solution because we were interested in using graph database, both are written in Go. Using Cayley gave us possibility to display progress of users from different groups. 
-#Technical details
+##Used tools
 
-User sign in to our application and after it receiving JWT token into cookies which using for session. User could run and stop timer and websockets will update all users with whom he connected by teams.
+We choose [Cayle] (https://github.com/google/cayley) since it gives us flexibility and fits the best our need to store relations among different entities and [Bolt] (https://github.com/boltdb/bolt) as embedded storage engine as simple, fast and reliable solution. 
+
+##Technical details
+
+User signs in to the application and obtains JWT token which is used as a session identifier lateron. He can run and stop timer and a server will update all other followers and users within his teams.
 
 ##What was done:
 
-Login for user
 
-Authorization with JWT token in cookies
+* Authorization with JWT token in cookies
 
-Running websockets with streaming current stage time
+* Synchronization across browser windows and different user via websockets
+
+* Users, teams and their relations are stored in graph database 
 
 ##Plans to do
 
-Registration
 
-Integration with Jira
+* Registration
 
-Team customization
+* Integration with Jira
 
-Settings page with customization of stages
+* Slack integration for messaging and status updates
 
-Messeging and integration with messages
+* Team customization
+
+* Timer customization
+
+
