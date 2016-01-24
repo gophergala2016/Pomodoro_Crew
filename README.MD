@@ -12,13 +12,22 @@ As db we choose Cayley https://github.com/google/cayley and Bol https://github.c
 
 User sign in to our application and after it receiving JWT token into cookies which using for session. User could run and stop timer and websockets will update all users with whom he connected by teams.
 
-What was done:
+##What was done:
+
 Login for user
+
 Authorization with JWT token in cookies
+
 Running websockets with streaming current stage time
-Plans to do
+
+##Plans to do
+
 Registration
+
 Integration with Jira
+
 Team customization
+
 Settings page with customization of stages
+
 Messeging and integration with messages
