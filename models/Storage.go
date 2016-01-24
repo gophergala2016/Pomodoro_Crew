@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-const BoltPath = "/tmp/pc"
+const BoltPath = "/tmp/pomodoro_crew"
 
 type Storage struct {
 	*cayley.Handle
@@ -25,6 +25,29 @@ func (s *Storage) SaveUser(u *User) {
 	}
 
 	s.AddQuad(cayley.Quad(u.Name, "free at", strconv.FormatInt(iterationTime, 10), ""))
+}
+
+func (s *Storage) GetUsers(exclude ...*User) []*User {
+	users := []*User{}
+	p := cayley.StartPath(s, "user").In("is")
+	it := p.BuildIterator()
+	for cayley.RawNext(it) {
+		name := s.NameOf(it.Result())
+		excluded := false
+		if len(exclude) > 0 {
+			for _, u := range exclude {
+				if name == u.Name {
+					excluded = true
+					break
+				}
+			}
+		}
+		if !excluded {
+			users = append(users, NewUser(name))
+		}
+	}
+
+	return users
 }
 
 func (s *Storage) GetUsersFreeAt(t int64) []*User {

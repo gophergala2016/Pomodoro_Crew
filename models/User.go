@@ -10,6 +10,7 @@ const (
 	Iterate15Minutes = 15 * 60
 	Iterate30Minutes = 30 * 60
 	Iterate45Minutes = 45 * 60
+	Wait5Minutes = 5 * 60
 )
 
 type User struct {
@@ -39,7 +40,7 @@ func (u *User) IterationTime() int64 {
 		if cayley.RawNext(it) {
 			u.iterationTime, _ = strconv.ParseInt(u.getStorage().NameOf(it.Result()), 10, 64)
 		} else {
-			u.iterationTime = time.Now().Unix()
+			u.iterationTime = time.Now().Unix() - Wait5Minutes
 		}
 	}
 
@@ -47,13 +48,19 @@ func (u *User) IterationTime() int64 {
 }
 
 func (u *User) Start(duration int64) {
-	u.iterationTime = time.Now().Unix() + duration
-	u.getStorage().SaveUser(u)
+	if u.CanStart() {
+		u.iterationTime = time.Now().Unix() + duration
+		u.getStorage().SaveUser(u)
+	}
 }
 
 func (u *User) Stop() {
 	u.iterationTime = time.Now().Unix()
 	u.getStorage().SaveUser(u)
+}
+
+func (u *User) CanStart() bool {
+	return time.Now().Unix() > u.IterationTime() + Wait5Minutes
 }
 
 func (u *User) getStorage() *Storage {

@@ -24,11 +24,21 @@ func (s *SocketServer) SetSession(session *session.Session) {
 }
 
 func (s *SocketServer) NotifyStop(t int64) {
-	freeAt := strconv.FormatInt(t, 10)
-	p := cayley.StartPath(s.storage, freeAt).In("free at")
+	stopAt := strconv.FormatInt(t, 10)
+	p := cayley.StartPath(s.storage, stopAt).In("free at")
 	it := p.BuildIterator()
 	for cayley.RawNext(it) {
 		s.BroadcastTo(RoomName, "stop", s.storage.NameOf(it.Result()))
+	}
+}
+
+func (s *SocketServer) NotifyEnable(t int64) {
+	stopedAt := strconv.FormatInt(t - models.Wait5Minutes, 10)
+	p := cayley.StartPath(s.storage, stopedAt).In("free at")
+	it := p.BuildIterator()
+	for cayley.RawNext(it) {
+		//TODO send to only one user
+		s.BroadcastTo(RoomName, "enable", s.storage.NameOf(it.Result()))
 	}
 }
 
@@ -39,8 +49,12 @@ func (s *SocketServer) initTimer() {
 		for {
 			select {
 			case <-ticker.C:
+				t := time.Now().Unix()
 				go func() {
-					s.NotifyStop(time.Now().Unix())
+					s.NotifyStop(t)
+				}()
+				go func() {
+					s.NotifyEnable(t)
 				}()
 			case <-quit:
 				ticker.Stop()

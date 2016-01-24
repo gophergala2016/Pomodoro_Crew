@@ -44,7 +44,11 @@ func PostLoginHandler(w http.ResponseWriter, rnd render.Render, r *http.Request,
 	})
 	s.Id = tokenString
 
-	models.NewUser(username)
+	storage, err := models.GetStorage()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	storage.SaveUser(models.NewUser(username))
 	rnd.Redirect("/")
 }
 
