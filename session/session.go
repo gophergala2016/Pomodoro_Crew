@@ -128,7 +128,13 @@ func Middleware(ctx martini.Context, r *http.Request, w http.ResponseWriter) {
 		log.Printf("Token Signing error: %v\n", err)
 		fmt.Fprintln(w, "Sorry, error while Signing Token!")
 	}
+	cookie, _ := r.Cookie(TOKEN_NAME)
 
+	if cookie.Value != " " {
+		tokenString = cookie.Value
+	}
+	fmt.Println(tokenString)
+	fmt.Println("______________________")
 	session := SessionStorage.Get(tokenString)
 
 	ctx.Map(session)

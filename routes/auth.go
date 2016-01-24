@@ -45,9 +45,14 @@ func PostLoginHandler(w http.ResponseWriter, rnd render.Render, r *http.Request,
 	rnd.Redirect("/")
 }
 
-func LogoutHandler(rnd render.Render, r *http.Request, s *session.Session) {
+func LogoutHandler(rnd render.Render, w http.ResponseWriter, r *http.Request, s *session.Session) {
 	s.Username = ""
+	s.Id = ""
 	s.IsAuthorized = false
+	http.SetCookie(w, &http.Cookie{
+		Name:  session.TOKEN_NAME,
+		Value: " ",
+	})
 
 	rnd.Redirect("/")
 }
