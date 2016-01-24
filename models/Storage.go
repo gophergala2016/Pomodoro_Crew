@@ -25,7 +25,7 @@ func (s *Storage) SaveUser(u *User) {
 	s.AddQuad(cayley.Quad(u.Name, "free at", strconv.FormatInt(iterationTime, 10), ""))
 }
 
-func (s *Storage) GetUsersFreeAt(t int64) {
+func (s *Storage) GetUsersFreeAt(t int64) []*User {
 	freeAt := strconv.FormatInt(t, 10)
 
 	users := []*User{}
@@ -42,7 +42,9 @@ var storage *Storage
 func GetStorage() (s *Storage, err error) {
 	if s == nil {
 		graph.InitQuadStore("bolt", BoltPath, nil)
-		s, err = cayley.NewGraph("bolt", BoltPath, nil)
+		var handle *cayley.Handle
+		handle, err = cayley.NewGraph("bolt", BoltPath, nil)
+		s = &Storage{handle}
 		storage = s
 	} else {
 		s = storage
