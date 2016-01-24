@@ -1,16 +1,15 @@
 package models
 
 import (
-	"time"
 	"github.com/google/cayley"
 	"strconv"
+	"time"
 )
 
 const (
 	Iterate15Minutes = 15 * 60
 	Iterate30Minutes = 30 * 60
 	Iterate45Minutes = 45 * 60
-
 )
 
 type User struct {

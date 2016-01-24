@@ -1,7 +1,8 @@
 package models
+
 import (
-	"github.com/google/cayley/graph"
 	"github.com/google/cayley"
+	"github.com/google/cayley/graph"
 	_ "github.com/google/cayley/graph/bolt"
 	"strconv"
 )
@@ -40,6 +41,7 @@ func (s *Storage) GetUsersFreeAt(t int64) []*User {
 }
 
 var storage *Storage
+
 func GetStorage() (s *Storage, err error) {
 	if storage == nil {
 		graph.InitQuadStore("bolt", BoltPath, nil)
