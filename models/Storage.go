@@ -44,7 +44,9 @@ var storage *Storage
 func GetStorage() (s *Storage, err error) {
 	if s == nil {
 		graph.InitQuadStore("bolt", BoltPath, nil)
-		s, _ = cayley.NewGraph("bolt", BoltPath, nil)
+		var handle *cayley.Handle
+		handle, err = cayley.NewGraph("bolt", BoltPath, nil)
+		s = &Storage{handle}
 		storage = s
 	} else {
 		s = storage

@@ -19,9 +19,7 @@ type User struct {
 }
 
 func NewUser(name string) *User {
-	var iterationTime int64
-	var storage *Storage
-	return &User{name, iterationTime, storage}
+	return &User{name, 0, nil}
 }
 
 func (u *User) Id() string {
@@ -33,8 +31,7 @@ func (u *User) Iteration() bool {
 }
 
 func (u *User) IterationTime() int64 {
-	var nilInt int64
-	if u.iterationTime == nilInt {
+	if u.iterationTime == 0 {
 		p := cayley.StartPath(u.getStorage(), u.Name).Out("free at")
 
 		it := p.BuildIterator()

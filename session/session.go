@@ -13,7 +13,7 @@ import (
 
 const (
 	TOKEN_NAME = "token"
-	TOKEN_STR  = "Pomodoro crew"
+	TOKEN_STR = "Pomodoro crew"
 )
 
 type Session struct {
@@ -44,7 +44,7 @@ func (store *SessionStore) Set(session *Session) {
 	store.data[session.Id] = session
 }
 
-func ensureCookie(r *http.Request, w http.ResponseWriter) string {
+func EnsureCookie(r *http.Request, w http.ResponseWriter) string {
 
 	tokenCookie, err := r.Cookie(TOKEN_NAME)
 	switch {
@@ -109,8 +109,8 @@ var SessionStorage = NewSessionStore()
 
 func Middleware(ctx martini.Context, r *http.Request, w http.ResponseWriter) {
 	assets := regexp.MustCompile(`.*assets.*`)
-	if r.URL.Path != "/login" && !assets.MatchString(r.URL.Path) && r.URL.Path != "/" {
-		sessionId := ensureCookie(r, w)
+	if r.URL.Path != "/login" && !assets.MatchString(r.URL.Path) && r.URL.Path != "/" && r.URL.Path != "/socket.io/" {
+		sessionId := EnsureCookie(r, w)
 		session := SessionStorage.Get(sessionId)
 
 		ctx.Map(session)
@@ -133,8 +133,6 @@ func Middleware(ctx martini.Context, r *http.Request, w http.ResponseWriter) {
 	if cookie.Value != " " {
 		tokenString = cookie.Value
 	}
-	fmt.Println(tokenString)
-	fmt.Println("______________________")
 	session := SessionStorage.Get(tokenString)
 
 	ctx.Map(session)
