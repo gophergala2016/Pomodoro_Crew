@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gophergala2016/Pomodoro_Crew/models"
 	"github.com/gophergala2016/Pomodoro_Crew/session"
 
 	"github.com/dgrijalva/jwt-go"
@@ -42,6 +43,8 @@ func PostLoginHandler(w http.ResponseWriter, rnd render.Render, r *http.Request,
 		Value: tokenString,
 	})
 	s.Id = tokenString
+
+	models.NewUser(username)
 	rnd.Redirect("/")
 }
 

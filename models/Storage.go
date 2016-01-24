@@ -1,7 +1,8 @@
 package models
+
 import (
-	"github.com/google/cayley/graph"
 	"github.com/google/cayley"
+	"github.com/google/cayley/graph"
 	"strconv"
 )
 
@@ -25,7 +26,7 @@ func (s *Storage) SaveUser(u *User) {
 	s.AddQuad(cayley.Quad(u.Name, "free at", strconv.FormatInt(iterationTime, 10), ""))
 }
 
-func (s *Storage) GetUsersFreeAt(t int64) {
+func (s *Storage) GetUsersFreeAt(t int64) []*User {
 	freeAt := strconv.FormatInt(t, 10)
 
 	users := []*User{}
@@ -39,14 +40,15 @@ func (s *Storage) GetUsersFreeAt(t int64) {
 }
 
 var storage *Storage
+
 func GetStorage() (s *Storage, err error) {
 	if s == nil {
 		graph.InitQuadStore("bolt", BoltPath, nil)
-		s, err = cayley.NewGraph("bolt", BoltPath, nil)
+		s, _ = cayley.NewGraph("bolt", BoltPath, nil)
 		storage = s
 	} else {
 		s = storage
 	}
 
-	return
+	return s, err
 }
