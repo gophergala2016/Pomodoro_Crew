@@ -32,14 +32,18 @@ func (u *User) Iteration() bool {
 }
 
 func (u *User) IterationTime() int64 {
-	p := cayley.StartPath(u.getStorage(), u.Name).Out("free at")
+	if u.iterationTime == nil {
+		p := cayley.StartPath(u.getStorage(), u.Name).Out("free at")
 
-	it := p.BuildIterator()
-	if cayley.RawNext(it) {
-		return strconv.ParseInt(u.getStorage().NameOf(it.Result()), 10, 64)
-	} else {
-		return time.Now().Unix()
+		it := p.BuildIterator()
+		if cayley.RawNext(it) {
+			u.iterationTime = strconv.ParseInt(u.getStorage().NameOf(it.Result()), 10, 64)
+		} else {
+			u.iterationTime = time.Now().Unix()
+		}
 	}
+
+	return u.iterationTime
 }
 
 func (u *User) Start(duration int64) {
