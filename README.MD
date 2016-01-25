@@ -1,7 +1,7 @@
 Pomodoro Crew
 ===============
 
-Pomodoro Crew is an efficient Time Management tool intending to solve or minimize team communication and productivity problems.
+Pomodoro Crew is an efficient Time Management tool intending to solve or minimize problems in team communication and productivity.
 
 [Presentation about Pomodoro Crew] (https://docs.google.com/presentation/d/1qNrgNp0SvOotwlRot-Yjs2EZp0lyZDd_FmhU-s-WV1c/edit?usp=sharing)
 
