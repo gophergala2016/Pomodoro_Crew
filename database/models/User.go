@@ -10,7 +10,7 @@ const (
 	Iterate15Minutes = 15 * 60
 	Iterate30Minutes = 30 * 60
 	Iterate45Minutes = 45 * 60
-	Wait5Minutes = 5 * 60
+	Wait5Minutes     = 5 * 60
 )
 
 type User struct {
@@ -60,7 +60,7 @@ func (u *User) Stop() {
 }
 
 func (u *User) CanStart() bool {
-	return time.Now().Unix() > u.IterationTime() + Wait5Minutes
+	return time.Now().Unix() > u.IterationTime()+Wait5Minutes
 }
 
 func (u *User) getStorage() *Storage {
