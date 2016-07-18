@@ -1,0 +1,16 @@
+{
+  "listen_address": 1223,
+  "database_config": {
+      "database_address": "127.0.0.1",
+      "user": "test_user",
+      "password": "Qwerty1",
+      "port": 3306,
+      "database_name": "jwt_api"
+  },
+  "facebook_config": {
+	"fb_id": "183514925379752",
+	"fb_key": "868f22a3890a3267906df8408d44e6ff",
+	"server_callback_address": "http://localhost:1223/v1/auth/callback?provider=facebook"
+  },
+  "jwt_key": "切髪"
+}

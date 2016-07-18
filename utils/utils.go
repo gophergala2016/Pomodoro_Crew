@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"crypto/rand"
-	"fmt"
+	"strconv"
 )
 
-func GenerateId() string {
-	b := make([]byte, 16)
-	rand.Read(b)
-	return fmt.Sprintf("%x", b)
+func ParseIdInt64FromString(s string) (int64, error) {
+	result, err := strconv.ParseInt(s, 10, 64)
+
+	return result, err
 }
